@@ -1,6 +1,6 @@
 {
   "name": "mentu-navigator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Read-only, provenance-first repository navigation and progressive disclosure for agents \u2014 a locator with pre-registered evidence behind its defaults (BM25-primary per doi:10.5281/zenodo.21969901). CLI + MCP server.",
   "type": "module",
   "bin": {
@@ -48,5 +48,6 @@
     "documentation",
     "search"
   ],
-  "author": "Rashid Azarang <rashid@mentu.ai>"
+  "author": "Rashid Azarang <rashid@mentu.ai>",
+  "mcpName": "ai.mentu/navigator"
 }
