@@ -208,15 +208,10 @@ read-only.
 The executable remains centralized. Repositories adopt only a short operating
 contract; they do not copy the implementation. See [docs/adoption.md](docs/adoption.md).
 
-## Relationship to existing Mentu tools
+## Related
 
-- `mentu-grep` supplies a mature engine zoo and remains the natural future
-  backend adapter.
-- `mentu-engines` can later host explicit external snapshots or queryable
-  derived indexes.
-- `context-compiler-protocol` contributes typed context placement and
-  inheritance.
-- `mentu-converter` can later contribute structured UI/browser evidence.
-
-This first increment consumes those architectural lessons without creating
-runtime coupling to sovereign sibling repositories.
+[`mentu-pdv`](https://github.com/mentu-ai/mentu-pdv) validates the
+frontmatter schema this tool consumes and emits the demotion sets `locate`
+applies — the two are designed as a pair, and the schema itself is
+published as a spec
+([SPEC-frontmatter.md](https://github.com/mentu-ai/mentu-pdv/blob/main/SPEC-frontmatter.md)).

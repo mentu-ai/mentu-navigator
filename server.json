@@ -1,16 +1,20 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "ai.mentu/navigator",
-  "description": "Read-only repository navigation and progressive disclosure for agents: locate (BM25-ranked ranges, evidence-backed default), read_range, handles, symbol and impact tools. No network; local-only telemetry.",
-  "repository": { "url": "https://github.com/mentu-ai/mentu-navigator", "source": "github" },
+  "description": "Read-only repo navigation and progressive disclosure; BM25 locator with registered evidence.",
+  "repository": {
+    "url": "https://github.com/mentu-ai/mentu-navigator",
+    "source": "github"
+  },
   "version": "1.0.0",
   "packages": [
     {
-      "registry_type": "npm",
+      "registryType": "npm",
       "identifier": "mentu-navigator",
       "version": "1.0.0",
-      "transport": { "type": "stdio" },
-      "runtime_hint": "npx"
+      "transport": {
+        "type": "stdio"
+      }
     }
   ]
 }
