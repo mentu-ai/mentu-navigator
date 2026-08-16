@@ -1,0 +1,6 @@
+interface:
+  display_name: "Mentu Navigator"
+  short_description: "Navigate repositories with source-backed evidence"
+  default_prompt: "Use $mentu-navigator to orient in this repository and locate the relevant source, tests, contracts, and lineage."
+policy:
+  allow_implicit_invocation: true

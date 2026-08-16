@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below, and cite the evidence papers for any performance claim."
+type: software
+title: "mentu-navigator: repository navigation and progressive disclosure for agents, with pre-registered evidence behind its defaults"
+version: 1.0.0
+date-released: 2026-08-16
+license: Apache-2.0
+authors:
+  - family-names: Azarang
+    given-names: Rashid
+    orcid: "https://orcid.org/0009-0008-5528-4246"
+    affiliation: "Independent Researcher"
+repository-code: "https://github.com/mentu-ai/mentu-navigator"
+references:
+  - type: report
+    title: "Reading More, Finding Less: A Pre-Registered Anatomy of Progressive Disclosure for AI Agents"
+    doi: 10.5281/zenodo.21960138
+  - type: report
+    title: "Finding More, Fusing Less: A Pre-Registered Locator Bake-off for AI Agents"
+    doi: 10.5281/zenodo.21969901

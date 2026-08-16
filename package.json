@@ -1,0 +1,52 @@
+{
+  "name": "mentu-navigator",
+  "version": "1.0.0",
+  "description": "Read-only, provenance-first repository navigation and progressive disclosure for agents \u2014 a locator with pre-registered evidence behind its defaults (BM25-primary per doi:10.5281/zenodo.21969901). CLI + MCP server.",
+  "type": "module",
+  "bin": {
+    "mentu-nav": "./bin/mentu-nav.js",
+    "mentu-navigator-mcp": "./bin/mentu-navigator-mcp.js"
+  },
+  "exports": "./src/index.js",
+  "files": [
+    "bin",
+    "docs",
+    "skills",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "node --check bin/mentu-nav.js && node --check bin/mentu-navigator-mcp.js && node --check src/core/handles.js && node --check src/core/query.js && node --check src/core/files.js && node --check src/core/fuse.js && node --check src/core/telemetry.js && node --check src/core/monitors.js && node --check src/core/present.js",
+    "test": "node --test",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "yaml": "2.9.0"
+  },
+  "overrides": {
+    "@hono/node-server": "2.0.11"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mentu-ai/mentu-navigator.git"
+  },
+  "homepage": "https://github.com/mentu-ai/mentu-navigator#readme",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "agents",
+    "retrieval",
+    "bm25",
+    "progressive-disclosure",
+    "repository-navigation",
+    "documentation",
+    "search"
+  ],
+  "author": "Rashid Azarang <rashid@mentu.ai>"
+}
