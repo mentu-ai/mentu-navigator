@@ -1,0 +1,87 @@
+# Archives every published release to Zenodo as a new version of the software's
+# concept DOI (10.5281/zenodo.22016638), with metadata from .zenodo.json.
+# Requires the ZENODO_TOKEN repository secret (scopes: deposit:write,
+# deposit:actions). Without the secret the job stops early and says so —
+# it never half-archives.
+name: zenodo-archive
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Guard
+        run: |
+          if [ -z "${{ secrets.ZENODO_TOKEN }}" ]; then
+            echo "ZENODO_TOKEN secret is not set; refusing to run half-configured." >&2
+            exit 1
+          fi
+      - name: Archive to Zenodo
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          CONCEPT_RECID: "22016638"
+          TAG: ${{ github.event.release.tag_name || github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, sys, urllib.request, urllib.parse
+
+          TOKEN = os.environ["ZENODO_TOKEN"]
+          CONCEPT = os.environ["CONCEPT_RECID"]
+          TAG = os.environ["TAG"]
+          VERSION = TAG.lstrip("v")
+          BASE = "https://zenodo.org/api"
+
+          def req(method, url, data=None, ctype="application/json", raw=False):
+              if data is not None and not raw:
+                  data = json.dumps(data).encode()
+              r = urllib.request.Request(url, data=data, method=method)
+              r.add_header("Authorization", f"Bearer {TOKEN}")
+              if data is not None:
+                  r.add_header("Content-Type", ctype)
+              with urllib.request.urlopen(r) as resp:
+                  body = resp.read()
+                  return json.loads(body) if body else {}
+
+          # 1. Latest version under the concept, then open a new-version draft.
+          q = urllib.parse.quote(f"conceptrecid:{CONCEPT}")
+          hits = req("GET", f"{BASE}/records?q={q}&all_versions=false&size=1")["hits"]["hits"]
+          if not hits:
+              sys.exit(f"no record found for concept {CONCEPT}")
+          latest = hits[0]["id"]
+          if hits[0].get("metadata", {}).get("version") == VERSION:
+              print(f"version {VERSION} already archived; nothing to do")
+              sys.exit(0)
+          draft = req("POST", f"{BASE}/deposit/depositions/{latest}/actions/newversion")
+          draft_url = draft["links"]["latest_draft"]
+          draft = req("GET", draft_url)
+
+          # 2. Replace files with this release's tarball (deterministic git archive).
+          name = f"mentu-navigator-{VERSION}.tar.gz"
+          subprocess.run(["git", "archive", "--format=tar.gz", f"--prefix=mentu-navigator-{VERSION}/",
+                          "-o", name, TAG], check=True)
+          for f in draft.get("files", []):
+              req("DELETE", f["links"]["self"])
+          bucket = draft["links"]["bucket"]
+          with open(name, "rb") as fh:
+              req("PUT", f"{bucket}/{name}", data=fh.read(),
+                  ctype="application/octet-stream", raw=True)
+
+          # 3. Metadata from .zenodo.json, stamped with this version.
+          z = json.load(open(".zenodo.json"))
+          meta = {"title": z["title"], "description": z["description"],
+                  "upload_type": z.get("upload_type", "software"),
+                  "creators": z["creators"], "license": z.get("license", "Apache-2.0"),
+                  "keywords": z.get("keywords", []),
+                  "related_identifiers": z.get("related_identifiers", []),
+                  "version": VERSION,
+                  "publication_date": os.popen("date -u +%Y-%m-%d").read().strip()}
+          req("PUT", draft_url, {"metadata": meta})
+
+          # 4. Publish.
+          out = req("POST", draft["links"]["publish"])
+          print("archived:", out.get("doi"), "| concept:", out.get("conceptdoi"))
+          PY
