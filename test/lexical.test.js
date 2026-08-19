@@ -143,7 +143,7 @@ test("vendored stemmers unify Spanish and English morphological pairs", () => {
 });
 
 test("tokenizer keeps the exact leg's token pattern and stopword discipline", () => {
-  const sample = "Where is PACM-274 handled in src/core/query.js for the catalog?";
+  const sample = "Where is DEMO-274 handled in src/core/query.js for the catalog?";
   const surface = rawTokens(sample);
   for (const term of extractTerms(sample)) {
     assert.ok(surface.includes(term.toLowerCase()), `${term} is not a shared surface token`);
@@ -151,7 +151,7 @@ test("tokenizer keeps the exact leg's token pattern and stopword discipline", ()
   // Path-shaped tokens survive whole and as parts, so both query shapes match.
   assert.ok(surface.includes("src/core/query.js"));
   assert.ok(surface.includes("core"));
-  assert.ok(surface.includes("pacm-274"));
+  assert.ok(surface.includes("demo-274"));
   assert.ok(surface.includes("274"));
 
   assert.deepEqual(tokenize("The the THE", "en"), []);

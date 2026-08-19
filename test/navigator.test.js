@@ -47,7 +47,7 @@ function fixture() {
   );
   fs.writeFileSync(
     path.join(root, "docs", "context", "catalog.md"),
-    "---\nid: catalog-flow\ntype: context\nstatus: active\nsummary: Catalog lookup flow\n---\nPACM-274 catalog latency.\n"
+    "---\nid: catalog-flow\ntype: context\nstatus: active\nsummary: Catalog lookup flow\n---\nDEMO-274 catalog latency.\n"
   );
   fs.writeFileSync(path.join(root, ".env"), "DO_NOT_RETURN=this-is-secret\n");
   fs.writeFileSync(path.join(root, ".env.local"), "DO_NOT_RETURN=local-secret\n");
@@ -63,7 +63,7 @@ function fixture() {
   execFileSync("git", ["config", "user.email", "navigator@example.invalid"], { cwd: root });
   execFileSync("git", ["config", "user.name", "Navigator Test"], { cwd: root });
   execFileSync("git", ["add", "."], { cwd: root });
-  execFileSync("git", ["commit", "-m", "PACM-274 initial catalog"], { cwd: root, stdio: "ignore" });
+  execFileSync("git", ["commit", "-m", "DEMO-274 initial catalog"], { cwd: root, stdio: "ignore" });
   return root;
 }
 
@@ -78,7 +78,7 @@ scope: general
 summary: Pointer-only UNIQUE_POINTER_SUMMARY
 lineage:
   - epistemic-node
-  - PACM-196
+  - DEMO-196
 tags: [docs-as-code, navigation]
 status: vivo
 related:
@@ -126,7 +126,12 @@ Finder body evidence.
 }
 
 test("classifies navigation intent deterministically", () => {
-  assert.equal(classifyQuery("where is PACM-274 implemented?"), "lineage");
+  assert.equal(classifyQuery("where is DEMO-274 implemented?"), "lineage");
+  // Generic ticket keys classify as lineage; common technical tokens must not
+  // (the classifier once hardcoded a single project's prefix — generalized 2026-08-19).
+  assert.equal(classifyQuery("where is JIRA2-9 implemented?"), "lineage");
+  assert.notEqual(classifyQuery("convert utf-8 text safely"), "lineage");
+  assert.notEqual(classifyQuery("compute the sha-256 digest"), "lineage");
   assert.equal(classifyQuery("find its regression test"), "test");
   assert.equal(classifyQuery("configuration yaml"), "config");
 });
@@ -173,7 +178,7 @@ test("frontmatter handles tolerate multiple docs-as-code schemas without treatin
   const lacs = all.pointers.find((pointer) => pointer.path.endsWith("lacs.md"));
   assert.deepEqual(lacs.tags, ["docs-as-code", "navigation"]);
   assert.ok(lacs.relations.some((relation) => relation.target === "finder-node" && relation.resolution === "internal-id"));
-  assert.ok(lacs.relations.some((relation) => relation.target === "PACM-196" && relation.resolution === "external"));
+  assert.ok(lacs.relations.some((relation) => relation.target === "DEMO-196" && relation.resolution === "external"));
   assert.ok(all.diagnostics.duplicateIds.some((item) => item.id === "lacs-node"));
   assert.ok(all.diagnostics.unresolvedInternalRelations.some((item) => item.target === "missing.md"));
   assert.ok(all.diagnostics.invalidFrontmatter.some((item) => item.path.endsWith("malformed.md")));
@@ -205,7 +210,7 @@ test("query returns ranked provenance and never exposes .env content", () => {
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), "mentu-navigator-outside-"));
   fs.writeFileSync(path.join(outside, "outside.txt"), "OUTSIDE_SECRET_TOKEN\n");
   fs.symlinkSync(path.join(outside, "outside.txt"), path.join(root, "linked-secret.txt"));
-  const result = queryRepository({ repo: root, query: "PACM-274 catalog", limit: 10 });
+  const result = queryRepository({ repo: root, query: "DEMO-274 catalog", limit: 10 });
   assert.equal(result.request.intent, "lineage");
   assert.ok(result.hits.some((hit) => hit.path === "docs/context/catalog.md"));
   assert.ok(result.hits.every((hit) => !hit.path.startsWith(".env")));
@@ -255,10 +260,10 @@ test("impact reports Git files, tickets, and risk signals", () => {
   fs.appendFileSync(path.join(root, ".env.local"), "DO_NOT_RETURN=changed\n");
   fs.appendFileSync(path.join(root, ".mentu", "historical-secret.txt"), "DO_NOT_RETURN=changed-history\n");
   execFileSync("git", ["add", "src/catalog.js", ".env.local", ".mentu/historical-secret.txt"], { cwd: root });
-  execFileSync("git", ["commit", "-m", "PACM-275 adjust catalog"], { cwd: root, stdio: "ignore" });
+  execFileSync("git", ["commit", "-m", "DEMO-275 adjust catalog"], { cwd: root, stdio: "ignore" });
   const result = changeImpact({ repo: root, base: "HEAD~1", head: "HEAD" });
   assert.deepEqual(result.changedFiles, ["src/catalog.js"]);
-  assert.deepEqual(result.ticketReferences, ["PACM-275"]);
+  assert.deepEqual(result.ticketReferences, ["DEMO-275"]);
   assert.ok(result.riskSignals.includes("no-test-file-changed"));
   assert.throws(
     () => changeImpact({ repo: root, base: "--output=/tmp/navigator-write", head: "HEAD" }),
@@ -269,10 +274,10 @@ test("impact reports Git files, tickets, and risk signals", () => {
 test("automatic front door routes map, query, and symbol requests", () => {
   const root = fixture();
   assert.equal(navigateRepository({ repo: root }).navigation.selectedCapability, "map");
-  assert.equal(navigateRepository({ repo: root, question: "where is PACM-274?" }).navigation.selectedCapability, "query");
+  assert.equal(navigateRepository({ repo: root, question: "where is DEMO-274?" }).navigation.selectedCapability, "query");
   assert.equal(navigateRepository({ repo: root, question: "symbol: filterCatalog" }).navigation.selectedCapability, "symbol");
   assert.equal(navigateRepository({ repo: root, question: "handles: catalog" }).navigation.selectedCapability, "handles");
-  const compact = compactResult(navigateRepository({ repo: root, question: "PACM-274 catalog", limit: 2 }));
+  const compact = compactResult(navigateRepository({ repo: root, question: "DEMO-274 catalog", limit: 2 }));
   assert.equal(compact.capability, "query");
   assert.ok(compact.evidence.length <= 2);
 });
@@ -285,7 +290,7 @@ test("navigation leaves target Git state and index unchanged", () => {
   const beforeStatus = execFileSync("git", ["status", "--porcelain"], gitOptions);
   mapRepository({ repo: root });
   handleRepository({ repo: root, query: "catalog" });
-  queryRepository({ repo: root, query: "PACM-274 catalog" });
+  queryRepository({ repo: root, query: "DEMO-274 catalog" });
   symbolContext({ repo: root, symbol: "filterCatalog" });
   const afterStatus = execFileSync("git", ["status", "--porcelain"], gitOptions);
   const afterIndex = fs.readFileSync(indexPath);

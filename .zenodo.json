@@ -1,0 +1,20 @@
+{
+  "title": "mentu-navigator: repository navigation and progressive disclosure for agents, with pre-registered evidence behind its defaults",
+  "description": "Read-only, provenance-first repository navigation for humans and AI agents: a CLI (mentu-nav) and MCP server exposing a pinned four-primitive contract (locate, read_range, open, handles). The locator composes an in-memory Okapi BM25 index with per-language Snowball analyzers and a hardened exact-search leg. Every performance-relevant default traces to a registered, mechanically adjudicated study; one default has already been retired by its frozen prediction. This record archives the software itself; the studies behind the defaults are archived separately (see related identifiers).",
+  "creators": [
+    {
+      "name": "Azarang, Rashid",
+      "orcid": "0009-0008-5528-4246",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "license": "Apache-2.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": ["AI agents", "information retrieval", "progressive disclosure", "BM25", "Model Context Protocol", "pre-registration"],
+  "related_identifiers": [
+    {"identifier": "10.5281/zenodo.21960138", "relation": "isSupplementTo", "scheme": "doi"},
+    {"identifier": "10.5281/zenodo.21969901", "relation": "isSupplementTo", "scheme": "doi"},
+    {"identifier": "https://github.com/mentu-ai/mentu-navigator", "relation": "isDerivedFrom", "scheme": "url"}
+  ]
+}
