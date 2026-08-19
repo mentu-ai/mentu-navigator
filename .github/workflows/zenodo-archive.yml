@@ -20,6 +20,13 @@ jobs:
             echo "ZENODO_TOKEN secret is not set; refusing to run half-configured." >&2
             exit 1
           fi
+          # A manual dispatch must run FROM A TAG: dispatched from a branch,
+          # TAG would resolve to the branch name and a bogus version named
+          # "main" would be archived under the concept DOI.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.ref_type }}" != "tag" ]; then
+            echo "workflow_dispatch from a ${{ github.ref_type }} (${{ github.ref_name }}); run it from a tag." >&2
+            exit 1
+          fi
       - name: Archive to Zenodo
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
