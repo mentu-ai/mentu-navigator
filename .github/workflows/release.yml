@@ -48,11 +48,19 @@ jobs:
       - name: npm publish with provenance
         env: { NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}' }
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "NPM_TOKEN not configured; skipping npm publish (manual publish remains the path)"; exit 0
-          fi
           VER=$(node -p "require('./package.json').version")
           if npm view "mentu-navigator@$VER" version >/dev/null 2>&1; then
             echo "mentu-navigator@$VER already on npm; nothing to do"; exit 0
           fi
-          npm publish --provenance
+          # Preferred path: Trusted Publishing (OIDC) — no token at all. npm is
+          # deprecating 2FA-bypassing tokens for direct publishing, so the
+          # token below is the fallback, not the design.
+          if npm publish --provenance 2>publish.err; then
+            echo "published via trusted publishing / ambient credentials"; exit 0
+          fi
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            echo "OIDC path unavailable (see below); publishing with NPM_TOKEN"; cat publish.err
+            npm publish --provenance
+          else
+            echo "no trusted publisher configured and no NPM_TOKEN; skipping npm publish:"; cat publish.err; exit 0
+          fi
