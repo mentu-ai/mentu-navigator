@@ -109,7 +109,10 @@ function snapshot(root, base = root, seen = []) {
  */
 function assertUntouched(root, before) {
   assert.deepEqual(snapshot(root), before, "a file inside the fixture repository changed");
-  assert.equal(execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }), "");
+  // The suite's own status check must not be a writer either: optional-lock
+  // writes (index refresh, TREE cache) are exactly what the snapshot guards.
+  assert.equal(execFileSync("git", ["status", "--porcelain"],
+    { cwd: root, encoding: "utf8", env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" } }), "");
   assert.ok(!snapshot(root).some((entry) => entry.includes(".mentu")), "no sink may appear inside the repository");
 }
 
@@ -169,7 +172,15 @@ la maquina, y el reporte muestra su propia cobertura antes de cualquier tasa.
   execFileSync("git", ["config", "user.email", "navigator@example.invalid"], { cwd: root });
   execFileSync("git", ["config", "user.name", "Navigator Test"], { cwd: root });
   execFileSync("git", ["add", "."], { cwd: root });
-  execFileSync("git", ["commit", "-m", "telemetry fixture"], { cwd: root, stdio: "ignore" });
+  // Background maintenance spawned by commit is the one writer that can touch
+  // .git AFTER setup returns (issue #9: the read-only snapshot intermittently
+  // saw .git change on CI). Disable it at the source; deterministic fixtures
+  // must not depend on the runner's git maintenance defaults.
+  execFileSync("git", ["-c", "gc.auto=0", "-c", "maintenance.auto=false",
+    "commit", "-m", "telemetry fixture"], { cwd: root, stdio: "ignore" });
+  // Bring the index to steady state BEFORE the read-only snapshot is taken, so
+  // no later optional-lock write (from any git invocation) can change it.
+  execFileSync("git", ["status", "--porcelain"], { cwd: root, stdio: "ignore" });
   clearIndexCache(root);
   return root;
 }

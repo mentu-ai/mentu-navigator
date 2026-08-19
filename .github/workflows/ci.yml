@@ -5,10 +5,16 @@ on:
   pull_request:
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        node: [20, 22]
+        include:
+          - { os: ubuntu-latest, node: 20 }
+          - { os: ubuntu-latest, node: 22 }
+          # Experimental until issue #5 closes: visible, never blocking.
+          - { os: windows-latest, node: 22, experimental: true }
+    continue-on-error: ${{ matrix.experimental == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,3 +22,10 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm ci
       - run: npm run verify
+      - name: Confidentiality sweep of the publishable tree
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          npm pack >/dev/null
+          mkdir -p /tmp/pack && tar -xzf mentu-navigator-*.tgz -C /tmp/pack
+          ! grep -rniE "pacm|laureate|unitec|chatbuilder|genai-" /tmp/pack/package

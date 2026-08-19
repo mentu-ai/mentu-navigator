@@ -1,0 +1,58 @@
+# Release pipeline: pushing a tag vX.Y.Z runs the full verify matrix, creates
+# the GitHub Release with the tarball's sha256 in the notes (artifact
+# continuity: the released bytes are pinned at release time), and publishes to
+# npm with provenance if NPM_TOKEN is configured. The Zenodo archive then
+# triggers off the published release (zenodo-archive.yml).
+name: release
+on:
+  push:
+    tags: ['v*.*.*']
+permissions:
+  contents: write
+  id-token: write   # npm --provenance
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { node: [20, 22] }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ matrix.node }}' }
+      - run: npm ci
+      - run: npm run verify
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, registry-url: 'https://registry.npmjs.org' }
+      - run: npm ci
+      - name: Confidentiality sweep of the publishable tree
+        run: |
+          npm pack
+          mkdir -p /tmp/pack && tar -xzf mentu-navigator-*.tgz -C /tmp/pack
+          if grep -rniE "pacm|laureate|unitec|chatbuilder|genai-" /tmp/pack/package; then
+            echo "client identifier in the publishable tree" >&2; exit 1
+          fi
+      - name: GitHub Release with pinned digest
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          SHA=$(shasum -a 256 mentu-navigator-*.tgz | cut -d' ' -f1)
+          gh release create "${{ github.ref_name }}" mentu-navigator-*.tgz \
+            --title "${{ github.ref_name }}" \
+            --notes "npm tarball sha256: \`$SHA\`. Archived on Zenodo under concept DOI 10.5281/zenodo.22016638 by the zenodo-archive workflow." \
+            || echo "release already exists; leaving it untouched"
+      - name: npm publish with provenance
+        env: { NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}' }
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN not configured; skipping npm publish (manual publish remains the path)"; exit 0
+          fi
+          VER=$(node -p "require('./package.json').version")
+          if npm view "mentu-navigator@$VER" version >/dev/null 2>&1; then
+            echo "mentu-navigator@$VER already on npm; nothing to do"; exit 0
+          fi
+          npm publish --provenance
