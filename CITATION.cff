@@ -5,6 +5,13 @@ title: "mentu-navigator: repository navigation and progressive disclosure for ag
 version: 1.1.0
 date-released: 2026-08-19
 doi: 10.5281/zenodo.22016639
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22016638
+    description: "Concept DOI: resolves to the latest archived version"
+  - type: doi
+    value: 10.5281/zenodo.22016639
+    description: "Version DOI: v1.1.0 as archived"
 license: Apache-2.0
 authors:
   - family-names: Azarang
