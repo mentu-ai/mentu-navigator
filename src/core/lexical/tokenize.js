@@ -87,7 +87,7 @@ export function stopWordsFor(lang) {
 
 /**
  * Casefolded surface tokens, before stopword removal and stemming. A token that
- * carries separators (`src/core/query.js`, `PACM-274`) is kept whole *and*
+ * carries separators (`src/core/query.js`, `DEMO-274`) is kept whole *and*
  * expanded into its parts, so a path-shaped query term and its components both
  * have something to match. Applied identically to documents and queries.
  */

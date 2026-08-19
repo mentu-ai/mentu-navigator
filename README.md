@@ -37,7 +37,7 @@ License: Apache-2.0. Telemetry is local-only JSONL under `~/.mentu/pd1/`
 ```bash
 cd /path/to/repository
 mentu-nav
-mentu-nav "where is PACM-274 implemented and tested?"
+mentu-nav "where is DEMO-274 implemented and tested?"
 ```
 
 Interactive terminals receive a concise human view. Pipes receive compact JSON;
@@ -45,7 +45,7 @@ Interactive terminals receive a concise human view. Pipes receive compact JSON;
 Agents should use `--agent` for a compact, token-efficient JSON contract:
 
 ```bash
-mentu-nav --agent "where is PACM-274 implemented and tested?"
+mentu-nav --agent "where is DEMO-274 implemented and tested?"
 ```
 
 The front door auto-routes to `map`, `query`, `handles`, `symbol`, or `impact`. Their

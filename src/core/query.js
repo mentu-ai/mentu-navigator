@@ -76,7 +76,7 @@ export function extractTerms(input) {
 
 export function classifyQuery(input) {
   const value = input.toLowerCase();
-  if (/(pacm-\d+|ticket|jira|commit|branch|pull request|\bpr\b|lineage|linaje)/i.test(value)) {
+  if (/(\b(?!utf-|iso-|sha-|crc-|md-)[a-z][a-z0-9]{1,9}-\d{1,6}\b|ticket|jira|commit|branch|pull request|\bpr\b|lineage|linaje)/i.test(value)) {
     return "lineage";
   }
   if (/(test|spec|fixture|golden|regression|prueba)/i.test(value)) return "test";

@@ -53,7 +53,7 @@ summary indexes because they are cheap to author. Recent work shows these
 conventions are fragile — fusion functions are parameter-sensitive and
 beatable [@bruch2023fusion], a weak path can drag a hybrid blend below
 its best component [@guo2025blend], and pre-registration for agent
-experiments is advocated but rarely practiced [@kapoor2026prereg].
+experiments is advocated but rarely practiced [@vaccaro2026prereg].
 Researchers studying agent retrieval need an instrument whose arms are
 produced by the shipped code path rather than a harness fork; practitioners
 need a locator whose defaults carry measurements rather than folklore.
@@ -65,6 +65,54 @@ determinism, secret-path exclusion before tokenization, argv-injection
 hardening) on every commit. The complete bake-off — corpus manifest,
 gated question set, run records, mechanical adjudicator — is archived
 for re-running [@azarang2026bakeoff].
+
+# State of the field
+
+Agents locate documents today through four tool families. Text searchers
+(`grep`, `ripgrep`) return exact matches without ranking or question intent.
+Code-intelligence stacks (ctags, LSP servers) resolve symbols, not prose
+documents. Embedding-based retrieval frameworks answer semantic queries at the
+cost of an index build, external model calls, and non-reproducible rankings.
+MCP filesystem servers expose read and list primitives but no ranked locate,
+leaving ranking to the model's improvisation. `mentu-navigator` occupies the
+gap between these: deterministic ranked document location with per-hit
+provenance, no index infrastructure, and no network dependency — and, unlike
+each of the above when used as a research instrument, its retrieval arms are
+the shipped code path rather than a harness approximation.
+
+# Software design
+
+The agent surface is a pinned four-primitive contract (`locate`, `read_range`,
+`open`, `handles`) served identically by the CLI and the MCP server. `locate`
+composes an in-memory Okapi BM25 index over per-language (Spanish/English)
+Snowball analyzers with a hardened exact-search leg; every hit carries
+retriever attribution and file-and-line provenance. Non-performance guarantees
+are enforced by the test suite on every commit: read-only operation against
+target repositories, byte-identical determinism across runs, exclusion of
+known secret-bearing paths before tokenization, and argv-injection hardening.
+Runtime dependencies are two (the MCP SDK and a YAML parser); telemetry is
+local-only JSONL with three standing monitors and a documented off switch.
+
+# Research impact statement
+
+The tool is an instrument first: its `--retriever` flag reproduces the exact
+arms of the registered studies behind its defaults [@azarang2026reading;
+@azarang2026bakeoff], and its ablation registry states each mechanism's
+retirement condition in advance — a discipline that has already retired the
+tool's own original fused default when it failed its frozen prediction. Both
+studies ship corpus manifests, question sets, and mechanical adjudicators for
+byte-identical re-running. External adoption is nascent: the package was first
+released in August 2026, and impact beyond the authors' registered research
+program is prospective rather than demonstrated.
+
+# AI usage disclosure
+
+The software and this paper were developed with Claude (Anthropic; Claude Code,
+Opus-class models) generating code and prose under the author's direction. All
+content was reviewed and edited by the author, who takes full responsibility
+for it. The evidence discipline described above exists precisely so that the
+tool's performance claims rest on registered, mechanically adjudicated
+measurements rather than on any author's — human or machine — assertion.
 
 # Acknowledgements
 
