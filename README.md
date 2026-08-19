@@ -1,5 +1,7 @@
 # mentu-navigator
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22016639.svg)](https://doi.org/10.5281/zenodo.22016639)
+
 Read-only, provenance-first repository navigation for humans and agents.
 
 `mentu-navigator` is the product name. `mentu-nav` is its short CLI. The
