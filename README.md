@@ -1,6 +1,6 @@
 # mentu-navigator
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22016639.svg)](https://doi.org/10.5281/zenodo.22016639)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22016638.svg)](https://doi.org/10.5281/zenodo.22016638)
 
 Read-only, provenance-first repository navigation for humans and agents.
 
