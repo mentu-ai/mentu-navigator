@@ -2,11 +2,44 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22016638.svg)](https://doi.org/10.5281/zenodo.22016638)
 
-Read-only, provenance-first repository navigation for humans and agents.
+Read-only, provenance-first repository navigation for humans and AI agents.
 
-`mentu-navigator` is the product name. `mentu-nav` is its short CLI. The
-distinction keeps the package broad enough to grow beyond grep while leaving a
-small command that is pleasant to invoke.
+Point it at a repository and ask a question. It returns ranked file-and-line
+ranges to read, each carrying the reason it ranked, and it never writes to the
+repository it reads. It is built for coding agents that must orient in an
+unfamiliar codebase without pulling the whole thing into context, and for the
+people reviewing what those agents did.
+
+`mentu-navigator` is the product name. `mentu-nav` is its short CLI.
+
+## Install
+
+Requires Node.js 20 or newer.
+
+```sh
+npm install -g mentu-navigator     # CLI: mentu-nav, MCP server: mentu-navigator-mcp
+```
+
+To run it without installing:
+
+```sh
+npx -p mentu-navigator mentu-nav "where is retry handled?"
+```
+
+The package name and the command name differ, so `npx mentu-navigator` on its
+own cannot resolve a binary. Pass `-p` as above.
+
+License: Apache-2.0. Telemetry is local-only JSONL under `~/.mentu/pd1/`
+(spec: [docs/TELEMETRY-SPEC.md](docs/TELEMETRY-SPEC.md)); disable with
+`MENTU_NAV_TELEMETRY=off`. Nothing ever leaves the machine.
+
+## Where it sits in Mentu
+
+`mentu-navigator` is the retrieval surface.
+[`mentu-pdv`](https://github.com/mentu-ai/mentu-pdv) validates the frontmatter
+schema this tool consumes and emits the demotion sets `locate` applies. The two
+are designed as a pair, and the schema is published as a spec
+([SPEC-frontmatter.md](https://github.com/mentu-ai/mentu-pdv/blob/main/SPEC-frontmatter.md)).
 
 ## Why it exists
 
@@ -23,16 +56,6 @@ The first release is intentionally deterministic:
   replace reading them;
 - bounded snippets with file-and-line provenance;
 - known secret-bearing paths excluded before content reads.
-
-## Install
-
-```sh
-npm install -g mentu-navigator     # CLI: mentu-nav · MCP server: mentu-navigator-mcp
-```
-
-License: Apache-2.0. Telemetry is local-only JSONL under `~/.mentu/pd1/`
-(spec: [docs/TELEMETRY-SPEC.md](docs/TELEMETRY-SPEC.md)); disable with
-`MENTU_NAV_TELEMETRY=off`. Nothing ever leaves the machine.
 
 ## One-command start
 
@@ -78,14 +101,14 @@ from source-body evidence so a summary cannot silently become an answer.
 ## Progressive disclosure: `locate` and `read-range`
 
 `locate` is the agent surface. Its default arm is **ranked lexical retrieval
-(BM25)** — a default set by a pre-registered study, not by taste (see
+(BM25)**. That default was set by a pre-registered study, not by taste (see
 *Evidence* below). Two legs exist:
 
-- a **ranked lexical leg** — in-memory Okapi BM25 over the same file set the
+- a **ranked lexical leg**: in-memory Okapi BM25 over the same file set the
   walker already produces, with vendored Snowball stemmers for Spanish and
   English, routed by each document's `lang` frontmatter tag (detected as a
   fallback, and the detection is logged, never written);
-- an **exact leg** — the deterministic `query` pipeline, unchanged in semantics.
+- an **exact leg**: the deterministic `query` pipeline, unchanged in semantics.
 
 A fused arm (reciprocal rank fusion of the two legs) exists as a measurement
 arm. It was the original default and was **retired from the default path by
@@ -98,8 +121,8 @@ mentu-nav locate "compaction policy" --k 8
 mentu-nav read-range docs/adr/ADR-014-ledger-compaction.md 38 62 --widen 1
 ```
 
-`locate` returns `{path, line, range, snippet, score, retriever, why}` — a
-range to read, not an answer. `read-range` returns the slice; each `--widen`
+`locate` returns `{path, line, range, snippet, score, retriever, why}`. That
+is a range to read, not an answer. `read-range` returns the slice; each `--widen`
 step reaches ±20 lines further and stops at the enclosing heading boundary, and
 frontmatter comes back in its own field so metadata cannot be mistaken for body
 evidence. Handles remain the pointer layer, unchanged: every pointer still
@@ -127,7 +150,7 @@ the pins above govern `locate`.
 
 `--demotions <path>` reads a `pdv demotions` JSON file (resolved against the
 repository root) and multiplies those documents' scores by 0.5. A demoted
-document ranks lower and is **never removed** — an unavailable document is the
+document ranks lower and is **never removed**. An unavailable document is the
 more expensive error. An unreadable or malformed demotion set is reported in the
 envelope diagnostics rather than silently ignored.
 
@@ -135,8 +158,8 @@ envelope diagnostics rather than silently ignored.
 
 `--retriever=bm25|exact|fused` selects an arm (default `bm25`). It exists so a
 registered bake-off's arms are produced by the shipped code path rather than by
-a harness fork — and that is exactly how the defaults here were decided. The
-flag is not a tuning knob.
+a harness fork. That is exactly how the defaults here were decided. The flag
+is not a tuning knob.
 
 ### Evidence
 
@@ -148,12 +171,13 @@ blind set, this tool's k=8 contract. The bake-off
 companion to [doi:10.5281/zenodo.21960138](https://doi.org/10.5281/zenodo.21960138)):
 
 - **BM25 located the gold document on 93.0% of questions vs hardened exact
-  search's 71.3%** (McNemar p < 1e-5) — which is why `bm25` is the default.
+  search's 71.3%** (McNemar p < 1e-5). That is why `bm25` is the default.
 - **The fused arm trailed BM25-alone by 7.8 pp** (p = 0.0225), failing its
   frozen "fusion never costs localization" prediction; the pre-registered
-  ablation rule retired it from the default path (docs/build/D3-REVISION-2026-08-16.md).
+  ablation rule retired it from the default path
+  ([docs/build/D3-REVISION-2026-08-16.md](docs/build/D3-REVISION-2026-08-16.md)).
 - An off-the-shelf SQLite FTS5 control (89.6%) was **not statistically
-  distinguishable** from this implementation — BM25 as such carries the gain.
+  distinguishable** from this implementation. BM25 as such carries the gain.
 - Downstream answer accuracy moved +5.2 pp under the better locator, almost
   entirely through localization.
 
@@ -170,9 +194,9 @@ so it can never be parsed as an engine flag.
 
 `mentu-navigator-mcp` exposes:
 
-- `navigator` — preferred compact, auto-routing entrypoint
-- `locate` — fused ranked ranges, with `retriever` and `demotions`
-- `read_range` — the disclosure step `locate` hands off to
+- `navigator`: preferred compact, auto-routing entrypoint
+- `locate`: BM25-ranked ranges, with `retriever` and `demotions`
+- `read_range`: the disclosure step `locate` hands off to
 - `navigator_map`
 - `navigator_query`
 - `navigator_handles`
@@ -209,11 +233,3 @@ read-only.
 
 The executable remains centralized. Repositories adopt only a short operating
 contract; they do not copy the implementation. See [docs/adoption.md](docs/adoption.md).
-
-## Related
-
-[`mentu-pdv`](https://github.com/mentu-ai/mentu-pdv) validates the
-frontmatter schema this tool consumes and emits the demotion sets `locate`
-applies — the two are designed as a pair, and the schema itself is
-published as a spec
-([SPEC-frontmatter.md](https://github.com/mentu-ai/mentu-pdv/blob/main/SPEC-frontmatter.md)).
