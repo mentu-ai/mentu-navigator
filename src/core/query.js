@@ -362,7 +362,7 @@ function createDiagnostics(limit = MAX_DIAGNOSTICS) {
 }
 
 function normalizeRetriever(value) {
-  const arm = String(value ?? "fused").trim().toLowerCase() || "fused";
+  const arm = String(value ?? "bm25").trim().toLowerCase() || "bm25";
   if (!RETRIEVERS.includes(arm)) {
     throw new Error(`Unknown retriever "${value}": choose ${RETRIEVERS.join(", ")}.`);
   }

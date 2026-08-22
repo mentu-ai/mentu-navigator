@@ -568,6 +568,9 @@ test("the CLI and MCP surfaces expose locate and read-range", () => {
   const payload = JSON.parse(compact.stdout);
   assert.equal(payload.capability, "locate");
   assert.equal(payload.request.k, LOCATE_DEFAULT_K);
+  // The shipped entrypoint carries the D3 default, not just the library API:
+  // c36 retired the fused default, so no surface may reintroduce it.
+  assert.equal(payload.request.retriever, "bm25");
   assert.deepEqual(Object.keys(payload.hits[0]), HIT_FIELDS);
 
   const measured = run(["locate", "compaction policy", "--retriever=exact", "--k=2", "--compact"]);

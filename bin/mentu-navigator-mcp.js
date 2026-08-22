@@ -69,8 +69,8 @@ const tools = [
         retriever: {
           type: "string",
           enum: ["bm25", "exact", "fused"],
-          default: "fused",
-          description: "Measurement only (S8): selects a single leg instead of the fused default."
+          default: "bm25",
+          description: "Measurement only (S8): selects an arm instead of the bm25 default. The fused default was retired by pre-registered study c36."
         },
         demotions: { type: "string", description: "Path to a `pdv demotions` JSON file, resolved against the repository root. Demoted documents rank lower and are never removed." }
       },

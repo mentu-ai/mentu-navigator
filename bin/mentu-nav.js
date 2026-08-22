@@ -203,7 +203,7 @@ function main() {
       k: flags.k ?? flags.limit,
       scope: flags.scope,
       lang: flags.lang,
-      retriever: flags.retriever ?? "fused",
+      retriever: flags.retriever,
       demotions: flags.demotions
     });
   } else if (command === "read-range" || command === "read_range") {
