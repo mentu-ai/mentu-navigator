@@ -52,7 +52,7 @@ const tools = [
   },
   {
     name: "locate",
-    description: "Progressive disclosure entrypoint: fuse a ranked lexical leg and an exact leg into k=8 source ranges, each with path, line, heading-anchored range, a snippet of at most 240 characters, retriever attribution, and its reason. Read a range with read_range before making a claim.",
+    description: "Progressive disclosure entrypoint: rank the repository with BM25 (the pre-registered default; measured on documentation, not code) into k=8 source ranges, each with path, line, heading-anchored range, a snippet of at most 240 characters, retriever attribution, and its reason. Read a range with read_range before making a claim.",
     inputSchema: {
       type: "object",
       required: ["repo", "query"],
