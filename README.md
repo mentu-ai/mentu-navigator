@@ -6,9 +6,15 @@ Read-only, provenance-first repository navigation for humans and AI agents.
 
 Point it at a repository and ask a question. It returns ranked file-and-line
 ranges to read, each carrying the reason it ranked, and it never writes to the
-repository it reads. It is built for coding agents that must orient in an
-unfamiliar codebase without pulling the whole thing into context, and for the
-people reviewing what those agents did.
+repository it reads. It is built for agents that must find the document that
+answers a question in a documentation-heavy repository, without pulling the
+whole thing into context, and for the people reviewing what those agents did.
+
+**Scope.** The ranking default is measured on documentation: markdown corpora,
+in pre-registered studies (see *Evidence*). It has not been measured on source
+code, where published comparisons favour other locators (see *Scope of the
+evidence*). The code-structure commands (`map`, `symbol`, `impact`) work on any
+repository; their usefulness has not been measured.
 
 `mentu-navigator` is the product name. `mentu-nav` is its short CLI.
 
@@ -183,7 +189,26 @@ companion to [doi:10.5281/zenodo.21960138](https://doi.org/10.5281/zenodo.219601
 
 Nothing here claims generality beyond that corpus class; the study, corpus
 manifest, question set, and adjudicator are public in the DOIs above for
-re-running. What *is* additionally asserted by the test suite on every commit: the index writes
+re-running.
+
+### Scope of the evidence
+
+Every study behind these defaults used markdown documentation; none used source
+code, and the difference matters. Finding the file to change from an issue
+description is a lower-overlap task, and published comparisons rank BM25 below
+embedding retrieval there. On SWE-bench Lite, BM25 placed a correct file among
+its top five 61.7% of the time, against 84.7% for a code-embedding retriever
+([Chen et al., *LocAgent*, Table 4](https://arxiv.org/abs/2503.09089)). So:
+
+- for a question answered by a document (a runbook, an ADR, a specification),
+  use `locate`, then read the range it returns;
+- to find code from an issue or a behaviour description, prefer your harness's
+  native search, or a code-aware locator, until a study on code exists;
+- a pre-registered comparison of this tool inside a live agent, against the
+  harness's native tools, is drafted with a code-localization stratum. It has
+  not been run. When it has, this section will report its result either way.
+
+What *is* additionally asserted by the test suite on every commit: the index writes
 nothing to a target repository and lives in memory for the life of the process;
 identical corpus and query produce byte-identical hit lists across runs and
 index rebuilds; secret-bearing paths are excluded before tokenization, not

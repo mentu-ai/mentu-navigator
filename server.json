@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "ai.mentu/navigator",
-  "description": "Read-only repo navigation and progressive disclosure; BM25 locator with registered evidence.",
+  "description": "Read-only repo navigation and progressive disclosure; BM25 default measured on docs, not code.",
   "repository": {
     "url": "https://github.com/mentu-ai/mentu-navigator",
     "source": "github"

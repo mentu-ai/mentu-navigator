@@ -1,6 +1,6 @@
 ---
 name: mentu-navigator
-description: Navigate unfamiliar or cross-cutting repositories with compact, source-backed evidence. Use when Codex needs to orient in a codebase, locate implementations, tests, configuration, docs, agent contracts, Jira/Git lineage, understand a symbol, audit a workspace, or review the likely impact of a Git change range before making claims or edits.
+description: Locate the documents that answer a question in documentation-heavy repositories (runbooks, ADRs, specifications, agent contracts), then read them; also map a workspace, show a symbol's surroundings, trace Jira/Git lineage, or review the likely impact of a Git change range before making claims or edits. Ranking is measured on documentation only; to find code from an issue or behaviour description, prefer native search.
 ---
 
 # Mentu Navigator
@@ -41,6 +41,10 @@ verification. Keep target repositories read-only during navigation.
 ## Evidence discipline
 
 - Treat ranked hits and impact signals as candidates, not proof.
+- The ranking default is measured on documentation, not on source code. To
+  locate code from an issue or a behaviour description, prefer the harness's
+  native search; use `symbol` and `impact` for structure around code you have
+  already found.
 - Treat `frontmatter-pointer` results only as low-cost routing handles. Never
   answer from `summary`, tags, status, or relations without hydrating the
   source body.
